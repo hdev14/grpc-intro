@@ -49,10 +49,13 @@ const server: RouteGuideServer = {
 
   routeChat(call) {
     call.on('data', (note: RouteNote) => {
+      console.info('New note: ', note);
+      
       const key = `${note.location?.latitude} ${note.location?.longitude}`;
 
       if (routeNotes.hasOwnProperty(key)) {
         routeNotes[key].forEach((note) => {
+          console.info('Sending note...');
           call.write(note);
         });
       } else {

@@ -1,5 +1,5 @@
 import { credentials } from "@grpc/grpc-js";
-import { Feature, Point, Rectangle, RouteGuideClient } from "./dist/protobuffs/route_guide";
+import { Feature, Point, Rectangle, RouteGuideClient, RouteNote } from "./dist/protobuffs/route_guide";
 
 const {
   HOST = '0.0.0.0',
@@ -56,4 +56,44 @@ call.on('error', (error) => {
 call.on('status', (status) => {
   console.info('Server status', status);
 });
+
+
+
+
+const duplexCall = routeGuide.routeChat();
+
+const note = RouteNote.create({
+  message: 'Test',
+  location: {
+    latitude: 144444,
+    longitude: 155555,
+  }
+});
+
+
+let count = 0;
+
+duplexCall.on('data', (note: RouteNote) => {
+  console.info(`${count} Server info: `, note);
+  count++;
+});
+
+duplexCall.on('error', (error) => {
+  console.error(error);
+});
+
+duplexCall.on('status', (status) => {
+  console.info(status);
+});
+
+duplexCall.on('end', () => {
+  console.info('server ending...');
+});
+
+duplexCall.write(note); // 1
+duplexCall.write(note); // 2 
+
+duplexCall.end();
+
+
 
